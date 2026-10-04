@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+/* Identidad SENSO: azul marino + azul tecnológico, rojo/naranja/verde semánticos. */
+@theme {
+  --color-navy-950: #06132a;
+  --color-navy-900: #0a1f3d;
+  --color-navy-800: #123061;
+  --color-navy-700: #1b417f;
+  --color-tech-600: #1565d8;
+  --color-tech-500: #1f7ae0;
+  --color-tech-400: #4b9bff;
+  --color-tech-100: #e3efff;
+  --color-alert-700: #b42318;
+  --color-alert-600: #d92d20;
+  --color-alert-100: #fde7e5;
+  --color-warn-600: #c4560a;
+  --color-warn-500: #e8730c;
+  --color-warn-100: #fff0df;
+  --color-ok-700: #12733a;
+  --color-ok-600: #16a34a;
+  --color-ok-100: #e2f6e9;
+  --color-surface: #f3f6fb;
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+html,
+body {
+  overflow-x: hidden;
+}
+body {
+  background: var(--color-surface);
+  color: var(--color-navy-950);
+  font-family: var(--font-sans);
+  -webkit-tap-highlight-color: transparent;
+}
+:focus-visible {
+  outline: 3px solid var(--color-tech-400);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+.safe-bottom {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+}
