@@ -1,6 +1,8 @@
 /** Configuración del servidor. Solo backend: nada de aquí se expone al frontend. */
 export interface ServerConfig {
   adminSecret: string;
+  /** false en producción sin ADMIN_SECRET válido: el centro de monitoreo responde 503 (la API pública sigue funcionando). */
+  adminConfigured: boolean;
   timezone: string;
   isProduction: boolean;
   corsOrigins: string[];
@@ -11,11 +13,11 @@ export interface ServerConfig {
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): ServerConfig {
   const isProduction = env.NODE_ENV === "production";
   const adminSecret = env.ADMIN_SECRET ?? "";
-  if (adminSecret.length < 32) {
-    if (isProduction) throw new Error("ADMIN_SECRET debe tener al menos 32 caracteres en producción");
-  }
+  const validSecret = adminSecret.length >= 32;
   return {
-    adminSecret: adminSecret.length >= 32 ? adminSecret : "dev-only-insecure-secret-change-me-0123456789",
+    // Sin secreto válido en producción NO se usa el de desarrollo: el admin queda deshabilitado.
+    adminSecret: validSecret ? adminSecret : isProduction ? "" : "dev-only-insecure-secret-change-me-0123456789",
+    adminConfigured: validSecret || !isProduction,
     timezone: env.APP_TIMEZONE || "America/Mexico_City",
     isProduction,
     corsOrigins: (env.CORS_ALLOWED_ORIGINS ?? "")

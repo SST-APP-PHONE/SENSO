@@ -196,6 +196,15 @@ Ver `.env.example`. **Nunca subir `.env`** (está en `.gitignore`).
 
 Ninguna variable se expone al frontend (no hay variables `VITE_*`).
 
+**Arranque sin configuración.** La API nunca falla al iniciar por falta de variables:
+
+- Sin `DATABASE_URL` (o inválida): `/senso/api/health` responde `200 {"ok":true,"db":false,"dbConfigured":false}`
+  y el resto de la API responde `503` con un mensaje claro. La app sigue funcionando sin conexión y la cola
+  queda pendiente hasta que el servidor tenga base de datos.
+- Sin `ADMIN_SECRET` válido en producción: la API pública funciona; el centro de monitoreo responde `503`
+  (`"adminConfigured": false` en `/health`). Nunca se usa el secreto de desarrollo en producción.
+- `/health` nunca expone valores de configuración; solo indica si están presentes y si la BD responde.
+
 ## Desarrollo local
 
 Requisitos: Node 20+ (probado en 22), MySQL 8 o MariaDB 10.11.
