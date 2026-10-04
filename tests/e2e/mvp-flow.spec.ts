@@ -110,8 +110,15 @@ test("MVP offline-first de punta a punta", async ({}, info) => {
   await admin.getByTestId("filter-category").selectOption("electricity");
   await admin.getByTestId("filter-status").selectOption("AVAILABLE");
   await expect(admin.getByTestId("reports-table")).toContainText(official);
-  const points = Number(await admin.getByTestId("monitor-map").getAttribute("data-points"));
+  // Puntos esperados según la BD con los mismos filtros (electricidad, disponible, con ubicación,
+  // periodo por defecto de 7 días). No se lee de la UI: mientras recarga podría mostrar el valor previo.
+  const [{ n }] = await query<{ n: number }>(
+    "SELECT COUNT(*) AS n FROM reports WHERE category = 'electricity' AND current_status = 'AVAILABLE' AND latitude IS NOT NULL AND created_at_client >= ?",
+    [new Date(Date.now() - 7 * 86_400_000)],
+  );
+  const points = Number(n);
   expect(points).toBeGreaterThanOrEqual(1);
+  await expect(admin.getByTestId("monitor-map")).toHaveAttribute("data-points", String(points));
   await admin.getByTestId("map-mode-points").click();
   await expect(admin.getByTestId("monitor-map")).toHaveAttribute("data-rendered", `points:${points}`);
   await admin.getByTestId("map-mode-heat").click();
