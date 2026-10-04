@@ -215,7 +215,9 @@ npm run build && npm start    # http://localhost:8787/senso/
 ```
 
 Rutas: `/senso/` (landing pública) · `/senso/app` (app) · `/senso/admin` (centro de monitoreo).
-Todas las rutas y recursos son relativos a la base `/senso/`; nada asume la raíz del dominio.
+Todas las rutas y recursos son relativos a la base `/senso/`; nada asume la raíz del dominio. El service worker
+tiene alcance `/senso/` y la cookie de administración `Path=/senso`, de modo que SENSO puede convivir en el mismo
+dominio que LeySillaPro sin interceptar ni recibir tráfico del resto del sitio.
 
 ## Administración
 
@@ -296,7 +298,7 @@ y añadir al `robots.txt` raíz del dominio las reglas de `public/robots.txt`
 - Rate limiting: `/sync` 60/min, lectura 300/min, login 20/15 min por IP (en Vercel el contador es
   por instancia; para límites globales usar un almacén compartido, p. ej. Redis).
 - Admin: contraseñas scrypt, bloqueo 15 min tras 5 intentos, sesión firmada HMAC en cookie
-  `HttpOnly; SameSite=Strict; Secure` (producción) de 8 h, verificada contra la BD en cada
+  `HttpOnly; SameSite=Strict; Secure` (producción) con `Path=/senso` (no viaja al resto de www.leysillapro.com) de 8 h, verificada contra la BD en cada
   petición; cabecera anti-CSRF `X-Senso-Request` en peticiones que modifican.
 - Cabeceras: Helmet/CSP estricta, `X-Robots-Tag: noindex` en API y admin, sin `X-Powered-By`.
 - Errores sin trazas ni detalles internos hacia el cliente.

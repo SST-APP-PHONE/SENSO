@@ -57,6 +57,7 @@ describe("Centro de monitoreo (API admin)", () => {
     const cookie = String(res.headers["set-cookie"]);
     expect(cookie).toMatch(/HttpOnly/);
     expect(cookie).toMatch(/SameSite=Strict/);
+    expect(cookie).toMatch(/Path=\/senso(;|$)/);
   });
 
   it("login incorrecto y bloqueo tras 5 intentos fallidos", async () => {

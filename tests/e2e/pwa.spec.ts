@@ -43,6 +43,14 @@ test.describe("PWA", () => {
     expect(admin.headers()["x-robots-tag"]).toContain("noindex");
   });
 
+  test("service worker limitado a /senso/ (no intercepta el resto del dominio)", async ({ page }) => {
+    await page.goto("/senso/app");
+    const scope = await page.evaluate(async () => (await navigator.serviceWorker.ready).scope);
+    expect(new URL(scope).pathname).toBe("/senso/");
+    const urls = await page.evaluate(() => performance.getEntriesByType("resource").map((e) => new URL(e.name).pathname));
+    for (const u of urls) expect(u.startsWith("/senso/"), `recurso fuera de /senso: ${u}`).toBe(true);
+  });
+
   test("IndexedDB contiene los stores esperados", async ({ page }) => {
     await page.goto("/senso/app");
     const stores = await page.evaluate(

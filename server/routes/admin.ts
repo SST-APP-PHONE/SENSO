@@ -54,7 +54,8 @@ export function adminRouter(db: Db, config: ServerConfig, loginLimiter: import("
     httpOnly: true,
     secure: config.isProduction,
     sameSite: "strict" as const,
-    path: "/",
+    // Solo /senso: al publicarse en www.leysillapro.com la cookie no debe viajar al resto del dominio.
+    path: "/senso",
   };
 
   r.post("/login", loginLimiter, async (req, res) => {
