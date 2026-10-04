@@ -15,6 +15,8 @@ export function createPool(url: string): mysql.Pool {
     timezone: "Z",
     dateStrings: false,
     enableKeepAlive: true,
+    // Falla rápido si la BD no responde (las funciones serverless tienen tiempo limitado).
+    connectTimeout: 5_000,
   });
 }
 
@@ -25,6 +27,27 @@ export function getDb(): Db {
   pool = createPool(url);
   db = drizzle(pool, { schema, mode: "default" });
   return db;
+}
+
+export type DbState = { db: Db; configured: true } | { db: null; configured: false; reason: string };
+
+/**
+ * Resuelve la conexión SIN lanzar excepciones: la ausencia o invalidez de DATABASE_URL
+ * no debe impedir que la API arranque (p. ej. /health debe poder informarlo).
+ * El pool de mysql2 es perezoso: no se conecta hasta la primera consulta.
+ */
+export function resolveDb(env: NodeJS.ProcessEnv = process.env): DbState {
+  if (!env.DATABASE_URL) return { db: null, configured: false, reason: "DATABASE_URL no configurada" };
+  try {
+    if (!db) {
+      pool = createPool(env.DATABASE_URL);
+      db = drizzle(pool, { schema, mode: "default" });
+    }
+    return { db, configured: true };
+  } catch {
+    // Nunca se incluye el valor de la URL (contiene credenciales).
+    return { db: null, configured: false, reason: "DATABASE_URL inválida" };
+  }
 }
 
 export function dbFromPool(p: mysql.Pool): Db {

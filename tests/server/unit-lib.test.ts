@@ -32,8 +32,12 @@ describe("Utilidades de servidor", () => {
     // 2026-10-04 03:00 UTC = 2026-10-03 21:00 en CDMX (UTC-6) → inicio del día 2026-10-03T06:00Z
     expect(startOfDayInTimezone(new Date("2026-10-04T03:00:00Z"), "America/Mexico_City").toISOString()).toBe("2026-10-03T06:00:00.000Z");
   });
-  it("ADMIN_SECRET obligatorio en producción", () => {
-    expect(() => loadConfig({ NODE_ENV: "production", ADMIN_SECRET: "corto" })).toThrow();
+  it("sin ADMIN_SECRET válido en producción el admin queda deshabilitado (sin tumbar el arranque ni usar el secreto de desarrollo)", () => {
+    const c = loadConfig({ NODE_ENV: "production", ADMIN_SECRET: "corto" });
+    expect(c.adminConfigured).toBe(false);
+    expect(c.adminSecret).toBe("");
+    expect(loadConfig({ NODE_ENV: "production", ADMIN_SECRET: "x".repeat(40) }).adminConfigured).toBe(true);
+    expect(loadConfig({ NODE_ENV: "development" }).adminConfigured).toBe(true);
     expect(loadConfig({ NODE_ENV: "production", ADMIN_SECRET: "x".repeat(40), SENSO_DISABLE_RATE_LIMIT: "1" }).disableRateLimit).toBe(false);
   });
 });

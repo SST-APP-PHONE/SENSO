@@ -9,10 +9,11 @@ import type { ServerConfig } from "./lib/config.js";
 import { requireCsrfHeader } from "./middleware/auth.js";
 import { errorHandler } from "./middleware/errors.js";
 import { adminRouter } from "./routes/admin.js";
-import { publicRouter } from "./routes/public.js";
+import { healthRouter, publicRouter } from "./routes/public.js";
 
 export interface AppOptions {
-  db: Db;
+  /** null si DATABASE_URL falta o es inválida: la API arranca igual y /health lo informa. */
+  db: Db | null;
   config: ServerConfig;
   /** Carpeta con el build del frontend (se sirve bajo /senso). Opcional. */
   staticDir?: string;
@@ -87,8 +88,16 @@ export function createApp({ db, config, staticDir }: AppOptions): Express {
     });
     api.use("/sync", syncLimiter);
     api.use(readLimiter);
-    api.use(publicRouter(db));
-    api.use("/admin", requireCsrfHeader, adminRouter(db, config, loginLimiter));
+    api.use(healthRouter(db, config));
+    if (db) {
+      api.use(publicRouter(db));
+      if (config.adminConfigured) api.use("/admin", requireCsrfHeader, adminRouter(db, config, loginLimiter));
+      else api.use("/admin", (_req, res) => res.status(503).json({ error: "Centro de monitoreo no configurado (ADMIN_SECRET)" }));
+    } else {
+      api.use((req, res, next) =>
+        req.path === "/health" ? next() : res.status(503).json({ error: "Servicio no disponible: base de datos no configurada" }),
+      );
+    }
     api.use((_req, res) => res.status(404).json({ error: "No encontrado" }));
     app.use(prefix, api);
   }
