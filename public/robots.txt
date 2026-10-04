@@ -1,0 +1,10 @@
+# SENSO — robots (servido en /senso/robots.txt).
+# Al publicar en www.leysillapro.com, agregar estas reglas al robots.txt RAÍZ del dominio.
+User-agent: *
+Allow: /senso/$
+Allow: /senso/privacidad
+Disallow: /senso/admin
+Disallow: /senso/api/
+Disallow: /senso/app/
+
+Sitemap: https://www.leysillapro.com/senso/sitemap.xml
