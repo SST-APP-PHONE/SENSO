@@ -185,6 +185,7 @@ Ver `.env.example`. **Nunca subir `.env`** (está en `.gitignore`).
 | Variable | Uso |
 |---|---|
 | `DATABASE_URL` | `mysql://usuario:contraseña@host:3306/senso` (solo servidor) |
+| `DB_HOST`, `DB_PORT`, `DB_USERNAME`, `DB_PASSWORD`, `DB_DATABASE` | Alternativa a `DATABASE_URL` (p. ej. TiDB Cloud). Solo se usan si `DATABASE_URL` **no** existe; conectan siempre con TLS verificando el certificado. `DB_PORT` por defecto 4000 |
 | `ADMIN_SECRET` | Secreto ≥ 32 caracteres para firmar sesiones admin. Obligatorio en producción |
 | `APP_TIMEZONE` | Zona para "Reportes hoy" (por defecto `America/Mexico_City`) |
 | `CORS_ALLOWED_ORIGINS` | Orígenes extra permitidos (coma). Vacío = mismo origen |
