@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import request from "supertest";
 import { createApp } from "../../server/app.js";
-import { createPool, dbFromPool, resolveDb } from "../../server/db/client.js";
+import { DB_NOT_CONFIGURED, createPool, dbFromPool, resolveDb } from "../../server/db/client.js";
 import { loadConfig } from "../../server/lib/config.js";
 
 /**
@@ -17,7 +17,7 @@ afterEach(() => {
 
 describe("Arranque sin configuración", () => {
   it("resolveDb no lanza: falta DATABASE_URL o es inválida (sin filtrar su valor)", () => {
-    expect(resolveDb({})).toEqual({ db: null, configured: false, reason: "DATABASE_URL no configurada" });
+    expect(resolveDb({})).toEqual({ db: null, configured: false, reason: DB_NOT_CONFIGURED });
     const bad = resolveDb({ DATABASE_URL: "no es una url ::: secreto123" });
     expect(bad).toMatchObject({ configured: false, reason: "DATABASE_URL inválida" });
     expect(JSON.stringify(bad)).not.toContain("secreto123");
