@@ -3,6 +3,8 @@ export interface ServerConfig {
   adminSecret: string;
   /** false en producción sin ADMIN_SECRET válido: el centro de monitoreo responde 503 (la API pública sigue funcionando). */
   adminConfigured: boolean;
+  /** Motivo por el que el admin está deshabilitado (nunca incluye el valor del secreto). */
+  adminConfigIssue: "ADMIN_SECRET_MISSING" | "ADMIN_SECRET_TOO_SHORT" | null;
   timezone: string;
   isProduction: boolean;
   corsOrigins: string[];
@@ -18,6 +20,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): ServerConfig {
     // Sin secreto válido en producción NO se usa el de desarrollo: el admin queda deshabilitado.
     adminSecret: validSecret ? adminSecret : isProduction ? "" : "dev-only-insecure-secret-change-me-0123456789",
     adminConfigured: validSecret || !isProduction,
+    adminConfigIssue: validSecret || !isProduction ? null : adminSecret.length === 0 ? "ADMIN_SECRET_MISSING" : "ADMIN_SECRET_TOO_SHORT",
     timezone: env.APP_TIMEZONE || "America/Mexico_City",
     isProduction,
     corsOrigins: (env.CORS_ALLOWED_ORIGINS ?? "")

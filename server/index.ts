@@ -9,7 +9,7 @@ const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const config = loadConfig();
 const dbState = resolveDb();
 if (!dbState.configured) console.warn(`[senso] ${dbState.reason}: la API arranca sin base de datos`);
-if (!config.adminConfigured) console.warn("[senso] ADMIN_SECRET no configurado: centro de monitoreo deshabilitado");
+if (!config.adminConfigured) console.warn(`[senso] ${config.adminConfigIssue}: ADMIN_SECRET debe existir y tener al menos 32 caracteres; centro de monitoreo deshabilitado`);
 const app = createApp({ db: dbState.db, config, staticDir: path.join(root, "dist", "senso") });
 const port = Number(process.env.PORT ?? 8787);
 app.listen(port, () => console.log(`SENSO API escuchando en http://localhost:${port}/senso/`));

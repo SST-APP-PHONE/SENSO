@@ -28,7 +28,7 @@ describe("Arranque sin configuración", () => {
     for (const prefix of ["/senso/api", "/api"]) {
       const h = await request(app).get(`${prefix}/health`);
       expect(h.status).toBe(200);
-      expect(h.body).toMatchObject({ ok: true, db: false, dbConfigured: false, adminConfigured: false });
+      expect(h.body).toMatchObject({ ok: true, db: false, dbConfigured: false, schemaReady: null, dbErrorCode: null, adminConfigured: false, adminConfigIssue: "ADMIN_SECRET_MISSING" });
     }
     const catalog = await request(app).get("/senso/api/catalog");
     expect(catalog.status).toBe(503);
