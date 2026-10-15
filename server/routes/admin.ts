@@ -10,6 +10,7 @@ import { DUMMY_HASH, verifyPassword } from "../lib/password.js";
 import { ipPrefix } from "../lib/privacy.js";
 import { SESSION_COOKIE, SESSION_TTL_SECONDS, issueSession } from "../lib/session.js";
 import { requireAdmin } from "../middleware/auth.js";
+import { getHeatmap, heatmapOptionsSchema } from "../services/heatmap.js";
 import { exportCsv, filtersSchema, getMapPoints, getReportDetail, getSummary, listMunicipalities, listReports } from "../services/monitoring.js";
 
 const MAX_FAILED_ATTEMPTS = 5;
@@ -126,6 +127,14 @@ export function adminRouter(db: Db, config: ServerConfig, loginLimiter: import("
     const f = parseFilters(req);
     if (!f.success) return res.status(400).json({ error: "Filtros inválidos" });
     res.json(await getMapPoints(db, f.data));
+  });
+
+  /** Mapa de calor: agregación geográfica en el servidor. Exclusivo del rol ADMIN (no basta con ocultar el menú). */
+  r.get("/heatmap", admin, async (req, res) => {
+    const f = parseFilters(req);
+    const o = heatmapOptionsSchema.safeParse(req.query);
+    if (!f.success || !o.success) return res.status(400).json({ error: "Filtros inválidos" });
+    res.json(await getHeatmap(db, f.data, o.data));
   });
 
   r.get("/municipalities", viewer, async (_req, res) => res.json({ municipalities: await listMunicipalities(db) }));

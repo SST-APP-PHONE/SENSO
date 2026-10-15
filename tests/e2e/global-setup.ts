@@ -7,6 +7,7 @@ import { hashPassword } from "../../server/lib/password.js";
 import { E2E_DB } from "../../playwright.config.js";
 
 export const ADMIN = { email: "monitor@senso.test", password: "E2E-Contraseña-Segura-1" };
+export const VIEWER = { email: "consulta@senso.test", password: "E2E-Contraseña-Consulta-1" };
 
 /** BD E2E limpia + un administrador + un evento activo (datos de prueba, no de la app). */
 export default async function globalSetup() {
@@ -20,6 +21,7 @@ export default async function globalSetup() {
   await migrate(db, { migrationsFolder: path.resolve("drizzle") });
   const now = new Date();
   await db.insert(adminUsers).values({ email: ADMIN.email, name: "Monitor E2E", passwordHash: await hashPassword(ADMIN.password), role: "ADMIN", isActive: true, createdAt: now });
+  await db.insert(adminUsers).values({ email: VIEWER.email, name: "Consulta E2E", passwordHash: await hashPassword(VIEWER.password), role: "VIEWER", isActive: true, createdAt: now });
   await db.insert(events).values({ type: "HURRICANE", name: "Polo 2026", isActive: true, startedAt: now, createdAt: now, updatedAt: now });
   await pool.end();
 }

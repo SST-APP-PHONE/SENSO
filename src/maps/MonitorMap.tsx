@@ -26,7 +26,7 @@ export interface Bounds {
 }
 
 // Estado: color + forma (relleno / anillo / hueco) para no depender solo del color.
-const STATUS_STYLE: Record<ReportStatus, L.CircleMarkerOptions> = {
+export const STATUS_STYLE: Record<ReportStatus, L.CircleMarkerOptions> = {
   UNAVAILABLE: { radius: 8, color: "#ffffff", weight: 2, fillColor: "#d92d20", fillOpacity: 1 },
   INTERMITTENT: { radius: 7, color: "#c4560a", weight: 4, fillColor: "#ffffff", fillOpacity: 1 },
   AVAILABLE: { radius: 5, color: "#16a34a", weight: 3, fillColor: "#16a34a", fillOpacity: 0.15 },
@@ -34,16 +34,24 @@ const STATUS_STYLE: Record<ReportStatus, L.CircleMarkerOptions> = {
 const SEVERITY_WEIGHT = { LOW: 0.4, MEDIUM: 0.7, HIGH: 1 } as const;
 /** Escala secuencial de "calor" (un solo sentido, claro → oscuro). */
 export const HEAT_GRADIENT = { 0.2: "#fde68a", 0.45: "#f59e0b", 0.7: "#dc2626", 1: "#7f1d1d" };
+/**
+ * Colores de la escala en orden de intensidad para las leyendas CSS. Object.values(HEAT_GRADIENT)
+ * NO sirve: JavaScript ordena primero la clave entera "1" y la leyenda empezaría en rojo oscuro.
+ */
+export const HEAT_GRADIENT_CSS = Object.entries(HEAT_GRADIENT)
+  .sort(([a], [b]) => Number(a) - Number(b))
+  .map(([, color]) => color)
+  .join(",");
 
 let heatLoaded: Promise<unknown> | null = null;
-function loadHeat() {
+export function loadHeat() {
   // leaflet.heat extiende el objeto global L.
   (window as unknown as { L: typeof L }).L = L;
   heatLoaded ??= import("leaflet.heat");
   return heatLoaded;
 }
 
-const escapeHtml = (s: string) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+export const escapeHtml = (s: string) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 
 export function MonitorMap({ points, mode, onBoundsChange }: { points: MapPoint[]; mode: MapMode; onBoundsChange?: (b: Bounds) => void }) {
   const el = useRef<HTMLDivElement>(null);
@@ -139,7 +147,7 @@ export function MapLegend({ mode }: { mode: MapMode }) {
     return (
       <div className="flex flex-wrap items-center gap-2 text-xs" aria-label="Escala del mapa de calor">
         <span>Menor concentración</span>
-        <span className="h-3 w-32 rounded" style={{ background: `linear-gradient(90deg, ${Object.values(HEAT_GRADIENT).join(",")})` }} />
+        <span className="h-3 w-32 rounded" style={{ background: `linear-gradient(90deg, ${HEAT_GRADIENT_CSS})` }} />
         <span>Mayor concentración</span>
         <span className="opacity-70">(ponderado por nivel de afectación)</span>
       </div>
