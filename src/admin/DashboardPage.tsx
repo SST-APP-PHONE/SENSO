@@ -263,7 +263,7 @@ export default function DashboardPage({ user }: { user: AdminUser }) {
   );
 }
 
-function Kpi({ label, value, testid }: { label: string; value: number | undefined; testid: string }) {
+export function Kpi({ label, value, testid }: { label: string; value: number | undefined; testid: string }) {
   return (
     <div className="rounded-2xl bg-white p-4 shadow-sm">
       <p className="text-xs font-semibold uppercase tracking-wide opacity-70">{label}</p>
@@ -274,7 +274,7 @@ function Kpi({ label, value, testid }: { label: string; value: number | undefine
   );
 }
 
-function Filters({
+export function Filters({
   filters,
   set,
   events,

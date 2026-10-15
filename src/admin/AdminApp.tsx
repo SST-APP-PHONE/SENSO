@@ -4,6 +4,7 @@ import { adminApi, HttpError } from "../api/client";
 import { BrandMark } from "../components/Brand";
 import DashboardPage from "./DashboardPage";
 import EventsPage from "./EventsPage";
+import HeatmapPage from "./HeatmapPage";
 import LoginPage from "./LoginPage";
 import type { AdminUser } from "./types";
 
@@ -70,6 +71,11 @@ export default function AdminApp() {
             <NavLink to="/admin" end className={tab}>
               Monitoreo
             </NavLink>
+            {user.role === "ADMIN" && (
+              <NavLink to="/admin/mapa-calor" className={tab} data-testid="nav-heatmap">
+                Mapa de calor
+              </NavLink>
+            )}
             <NavLink to="/admin/eventos" className={tab}>
               Eventos
             </NavLink>
@@ -83,6 +89,8 @@ export default function AdminApp() {
         <Routes>
           <Route index element={<DashboardPage user={user} />} />
           <Route path="eventos" element={<EventsPage user={user} />} />
+          {/* La página también comprueba el rol; el servidor exige ADMIN en /admin/heatmap. */}
+          <Route path="mapa-calor" element={<HeatmapPage user={user} />} />
         </Routes>
       </main>
     </div>
