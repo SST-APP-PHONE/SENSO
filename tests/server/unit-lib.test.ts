@@ -38,6 +38,10 @@ describe("Utilidades de servidor", () => {
     expect(c.adminSecret).toBe("");
     expect(loadConfig({ NODE_ENV: "production", ADMIN_SECRET: "x".repeat(40) }).adminConfigured).toBe(true);
     expect(loadConfig({ NODE_ENV: "development" }).adminConfigured).toBe(true);
+    // Motivo explícito (sin revelar el valor) para diagnosticar desde /health.
+    expect(loadConfig({ NODE_ENV: "production" }).adminConfigIssue).toBe("ADMIN_SECRET_MISSING");
+    expect(loadConfig({ NODE_ENV: "production", ADMIN_SECRET: "corto" }).adminConfigIssue).toBe("ADMIN_SECRET_TOO_SHORT");
+    expect(loadConfig({ NODE_ENV: "production", ADMIN_SECRET: "x".repeat(40) }).adminConfigIssue).toBeNull();
     expect(loadConfig({ NODE_ENV: "production", ADMIN_SECRET: "x".repeat(40), SENSO_DISABLE_RATE_LIMIT: "1" }).disableRateLimit).toBe(false);
   });
 });

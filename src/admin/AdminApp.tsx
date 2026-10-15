@@ -33,7 +33,11 @@ export default function AdminApp() {
       (e) => {
         if (!alive) return;
         setUser(null);
-        if (!(e instanceof HttpError && e.status === 401)) {
+        if (e instanceof HttpError) {
+          // El servidor respondió: 401 = sin sesión (normal); otro código = mostrar su mensaje real
+          // (p. ej. 503 "Centro de monitoreo no configurado (ADMIN_SECRET)"), no un falso error de red.
+          if (e.status !== 401) setError(e.message);
+        } else {
           setError(navigator.onLine ? "No se pudo contactar al servidor." : "Sin conexión: el centro de monitoreo requiere internet.");
         }
       },

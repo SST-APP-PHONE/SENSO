@@ -17,7 +17,7 @@ function build(): (req: IncomingMessage, res: ServerResponse) => void {
     const { db, configured, ...rest } = resolveDb();
     if (!configured) console.warn(`[senso] ${"reason" in rest ? rest.reason : "BD no configurada"}: la API arranca sin base de datos`);
     const config = loadConfig();
-    if (!config.adminConfigured) console.warn("[senso] ADMIN_SECRET no configurado: centro de monitoreo deshabilitado");
+    if (!config.adminConfigured) console.warn(`[senso] ${config.adminConfigIssue}: ADMIN_SECRET debe existir y tener al menos 32 caracteres; centro de monitoreo deshabilitado`);
     return createApp({ db, config });
   } catch (err) {
     // Última red de seguridad: responder JSON en lugar de tumbar la función.
